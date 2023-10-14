@@ -3,7 +3,7 @@ import { Product } from './products.model';
 
 @Injectable()
 export class ProductsService {
-  private product: Array<Product> = [];
+  private products: Array<Product> = [];
 
   createProduct(title: string, desc: string, price: number) {
     const newProduct = new Product(
@@ -12,18 +12,40 @@ export class ProductsService {
       desc,
       price,
     );
-    this.product.push(newProduct);
+    this.products.push(newProduct);
     return newProduct;
   }
 
   getProducts() {
-    return [...this.product];
+    return [...this.products];
   }
 
   getProduct(id: string) {
-    const product = this.product.find((prod) => prod.id === id);
-
-    if (!product) throw new NotFoundException('Product not found');
+    const [product] = this.findProduct(id);
     return product;
+  }
+
+  updateProduct(
+    productId: string,
+    body: { title: string; desc: string; price: number },
+  ) {
+    const [product, index] = this.findProduct(productId);
+    this.products[index] = {
+      ...product,
+      title: body.title || product.title,
+      desc: body.desc || product.title,
+      price: body.price || product.price,
+    };
+    return this.products[index];
+  }
+
+  private findProduct(productId: string): [Product, number] {
+    const productIndex = this.products.findIndex(
+      (prod) => prod.id === productId,
+    );
+    const product = this.products[productIndex];
+    if (!product) throw new NotFoundException('No product found for record id');
+
+    return [product, productIndex];
   }
 }
