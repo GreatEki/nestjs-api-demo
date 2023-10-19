@@ -12,7 +12,9 @@ export class AuthController {
   }
 
   @Post('/signin/local')
-  signinLocal() {}
+  async signinLocal(@Body() dto: AuthDto) {
+    return await this.authService.signinLocal(dto);
+  }
 
   @Post('/logout')
   logout() {}

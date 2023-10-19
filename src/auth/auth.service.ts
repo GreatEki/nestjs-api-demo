@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthDto } from './dto';
-import { hashData } from 'util/hash.util';
+import { compareHashData, hashData } from 'util/hash.util';
 import { JwtService } from '@nestjs/jwt';
 import { Tokens } from './types';
 
@@ -29,7 +29,20 @@ export class AuthService {
     return tokens;
   }
 
-  signinLocal() {}
+  async signinLocal(dto: AuthDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (!user) throw new ForbiddenException('Access denied');
+
+    const passwordMatch = compareHashData(dto.password, user.password);
+    if (!passwordMatch) throw new ForbiddenException('Access denied');
+
+    const tokens = await this.getTokens(user.id, user.email);
+    await this.updateUserRefreshToken(user.id, tokens.refreshToken);
+    return tokens;
+  }
 
   logout() {}
 
