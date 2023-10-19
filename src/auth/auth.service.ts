@@ -58,7 +58,27 @@ export class AuthService {
     });
   }
 
-  refresh() {}
+  async refreshToken(userId: number, refreshToken: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) throw new ForbiddenException('Access denied');
+
+    if (!user.hashedRefreshToken) throw new ForbiddenException('Access denied');
+
+    const refreshTokenMatch = await compareHashData(
+      refreshToken,
+      user.hashedRefreshToken,
+    );
+    if (!refreshTokenMatch)
+      throw new ForbiddenException('Invalid/Unrecognised token');
+
+    const tokens = await this.getTokens(user.id, user.email);
+    await this.updateUserRefreshToken(user.id, tokens.refreshToken);
+
+    return tokens;
+  }
 
   private async getTokens(userId: number, email: string): Promise<Tokens> {
     const [accessToken, refreshToken] = await Promise.all([
