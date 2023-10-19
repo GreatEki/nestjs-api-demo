@@ -11,7 +11,7 @@ export class RefreshTokenStrategy extends PassportStrategy(
   constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: 'sample-secret-jwt-key',
+      secretOrKey: process.env.JWT_REFRESH_SECRET_KEY,
       passReqToCallback: true,
     });
   }

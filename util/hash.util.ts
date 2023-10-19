@@ -1,9 +1,9 @@
-import bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 
-export const hashData = (data: string) => {
-  return bcrypt.hashSync(data, bcrypt.genSaltSync(10));
+export const hashData = async (data: string) => {
+  return await bcrypt.hash(data, bcrypt.genSaltSync(10));
 };
 
-export const compareHashData = (rawData: string, hashedData: string) => {
-  return bcrypt.compareSync(rawData, hashedData);
+export const compareHashData = async (rawData: string, hashedData: string) => {
+  return await bcrypt.compare(rawData, hashedData);
 };
