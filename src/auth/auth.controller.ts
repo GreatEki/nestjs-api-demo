@@ -1,24 +1,43 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Req,
+  HttpCode,
+  HttpStatus,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
+import { AuthGuard } from '@nestjs/passport';
+import { Request } from 'express';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('/signup/local')
+  @HttpCode(HttpStatus.CREATED)
   async signupLocal(@Body() dto: AuthDto) {
     return await this.authService.signupLocal(dto);
   }
 
   @Post('/signin/local')
+  @HttpCode(HttpStatus.OK)
   async signinLocal(@Body() dto: AuthDto) {
     return await this.authService.signinLocal(dto);
   }
 
-  @Post('/logout')
-  logout() {}
+  @Get('/logout')
+  @UseGuards(AuthGuard('jwt'))
+  @HttpCode(HttpStatus.OK)
+  async logout(@Req() req: Request) {
+    return await this.authService.logout(Number(req.user['sub']));
+  }
 
+  @UseGuards(AuthGuard('refresh-jwt'))
   @Post('/refresh')
+  @HttpCode(HttpStatus.OK)
   refresh() {}
 }
