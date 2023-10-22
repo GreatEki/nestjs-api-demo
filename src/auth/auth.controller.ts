@@ -12,17 +12,24 @@ import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
 import { Request } from 'express';
 import { AccessTokenGuard, RefreshTokenGuard } from 'src/common/guards';
+import {
+  GetCurrentUserId,
+  GetCurrentUser,
+  Public,
+} from 'src/common/decorators';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @Public()
   @Post('/signup/local')
   @HttpCode(HttpStatus.CREATED)
   async signupLocal(@Body() dto: AuthDto) {
     return await this.authService.signupLocal(dto);
   }
 
+  @Public()
   @Post('/signin/local')
   @HttpCode(HttpStatus.OK)
   async signinLocal(@Body() dto: AuthDto) {
@@ -39,11 +46,10 @@ export class AuthController {
   @UseGuards(RefreshTokenGuard)
   @Get('/refresh')
   @HttpCode(HttpStatus.OK)
-  refresh(@Req() req: Request) {
-    const user = req.user;
-    return this.authService.refreshToken(
-      Number(user['sub']),
-      user['refreshToken'],
-    );
+  refresh(
+    @GetCurrentUserId() userId: number,
+    @GetCurrentUser('refreshToken') refreshToken: string,
+  ) {
+    return this.authService.refreshToken(userId, refreshToken);
   }
 }
