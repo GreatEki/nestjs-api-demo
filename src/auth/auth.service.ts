@@ -1,4 +1,8 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AuthDto } from './dto';
 import { compareHashData, hashData } from 'util/hash.util';
@@ -13,6 +17,12 @@ export class AuthService {
   ) {}
 
   async signupLocal(dto: AuthDto) {
+    const emailExists = await this.prisma.user.findUnique({
+      where: { email: dto.email },
+    });
+
+    if (emailExists) throw new BadRequestException('Email is already taken.');
+
     const hashPassword = await hashData(dto.password);
 
     const newUser = await this.prisma.user.create({
@@ -35,7 +45,6 @@ export class AuthService {
     });
 
     if (!user) throw new ForbiddenException('Access denied');
-
     const passwordMatch = compareHashData(dto.password, user.password);
     if (!passwordMatch) throw new ForbiddenException('Access denied');
 
