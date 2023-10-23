@@ -72,9 +72,8 @@ export class AuthService {
       where: { id: userId },
     });
 
-    if (!user) throw new ForbiddenException('Access denied');
-
-    if (!user.hashedRefreshToken) throw new ForbiddenException('Access denied');
+    if (!user || !user.hashedRefreshToken)
+      throw new ForbiddenException('Access denied');
 
     const refreshTokenMatch = await compareHashData(
       refreshToken,

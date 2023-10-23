@@ -11,7 +11,7 @@ import {
 import { AuthService } from './auth.service';
 import { AuthDto } from './dto';
 import { Request } from 'express';
-import { AccessTokenGuard, RefreshTokenGuard } from 'src/common/guards';
+import { RefreshTokenGuard } from 'src/common/guards';
 import {
   GetCurrentUserId,
   GetCurrentUser,
@@ -37,12 +37,12 @@ export class AuthController {
   }
 
   @Get('/logout')
-  @UseGuards(AccessTokenGuard)
   @HttpCode(HttpStatus.OK)
   async logout(@Req() req: Request) {
     return await this.authService.logout(Number(req.user['sub']));
   }
 
+  @Public()
   @UseGuards(RefreshTokenGuard)
   @Get('/refresh')
   @HttpCode(HttpStatus.OK)
@@ -50,6 +50,7 @@ export class AuthController {
     @GetCurrentUserId() userId: number,
     @GetCurrentUser('refreshToken') refreshToken: string,
   ) {
+    console.log(userId);
     return this.authService.refreshToken(userId, refreshToken);
   }
 }
