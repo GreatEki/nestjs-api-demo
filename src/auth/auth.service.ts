@@ -100,7 +100,7 @@ export class AuthService {
           sub: userId,
           email: email,
         },
-        { secret: process.env.JWT_ACCESS_SECRET_KEY, expiresIn: 60 * 15 },
+        { secret: process.env.JWT_ACCESS_SECRET_KEY, expiresIn: 60 * 60 },
       ),
 
       this.jwtService.signAsync(
