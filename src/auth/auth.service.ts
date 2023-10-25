@@ -89,6 +89,11 @@ export class AuthService {
   }
 
   private async getTokens(userId: number, email: string): Promise<Tokens> {
+    // expires in 60 * 15 = 15minutes
+    // expires in 60 * 60 = 1hour
+    // expires in 60 * 60 * 2 = 2hours
+    // expires in 60 * 60 * 24 * 7 = 7days
+
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(
         {
