@@ -8,8 +8,8 @@ import { APP_GUARD } from '@nestjs/core';
   imports: [
     ThrottlerModule.forRoot([
       {
-        ttl: 60000,
-        limit: 3,
+        ttl: Number(process.env.UPLOAD_RATE_TTL),
+        limit: Number(process.env.UPLOAD_RATE_LIMIT),
       },
     ]),
   ],
